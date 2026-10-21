@@ -1,0 +1,52 @@
+/* Data-first workspace inspired by the Monty reference, in SOS Exatas colors. */
+.stApp { background:#f5f6f9; }
+.block-container { padding-top:1.35rem; max-width:1580px; }
+h1 { font-size:1.85rem !important; letter-spacing:-.045em; }
+h3 { font-size:.94rem !important; font-weight:650 !important; }
+[data-testid="stSidebar"] { background:#fbfcfe; border-right:1px solid #e7ebf1; }
+[data-testid="stSidebar"] > div:first-child { padding-top:.5rem; }
+[data-testid="stSidebar"] h3 { font-size:.67rem !important; letter-spacing:.1em; color:#6d7d92 !important; }
+[data-testid="stSidebar"] hr { margin:.65rem 0; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label { padding:9px 10px; border-radius:10px; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background:#002658; color:white; }
+.sos-brand { margin:0 0 10px; }.sos-logo { padding:8px 12px; }.sos-brand-label { font-size:.52rem; letter-spacing:.14em; }
+.workspace-bar { padding:13px 18px; margin-bottom:25px; border:1px solid #e7ebf1; border-radius:15px; background:#fff; font-size:.78rem; }
+.user-chip { border:0; background:#f3f6fa; }
+.page-eyebrow { font-size:.6rem; color:#6d7d92; letter-spacing:.09em; }
+.scope-note { font-size:.69rem; color:#63738b; padding:3px 0 16px; display:flex; align-items:center; gap:7px; }
+.stat-card { border:1px solid #e7ebf1; padding:20px 18px; min-height:136px; border-radius:15px; }
+.stat-label { font-size:.73rem; }.stat-value { font-size:1.85rem; margin:12px 0 10px; }.stat-caption { font-size:.67rem; }
+.stat-card.featured { background:linear-gradient(125deg,#002658,#2B71CC); border-color:transparent; box-shadow:0 8px 20px #2b71cc20; }
+.stat-card.featured .stat-label,.stat-card.featured .stat-value { color:#fff; }.stat-card.featured .stat-caption { color:#d6e7ff; }
+.analytics-card { background:#fff; border:1px solid #e7ebf1; border-radius:16px; padding:20px 22px; min-height:280px; }
+.card-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:25px; }.card-heading h3 { padding:0; margin:0; }
+.subtle-pill { color:#6d7d92; background:#f5f6f9; padding:5px 8px; border-radius:7px; font-size:.62rem; white-space:nowrap; }
+.distribution-row { margin-bottom:19px; }.distribution-row > div:first-child { display:flex; justify-content:space-between; font-size:.74rem; margin-bottom:9px; }.distribution-row strong { font-weight:650; color:#002658; }
+.bar-track { height:8px; background:#eef2f8; border-radius:6px; overflow:hidden; }.bar-track > div { height:100%; background:#2B71CC; border-radius:6px; }.distribution-row:nth-child(3) .bar-track > div { background:#4AA580; }.distribution-row:nth-child(4) .bar-track > div { background:#002658; }
+.chart-note { color:#708098; font-size:.64rem; margin:18px 0 0; }
+.utilization { display:flex; align-items:center; justify-content:center; gap:22px; min-height:150px; }
+.donut { background:conic-gradient(#2B71CC var(--progress),#edf2f8 0); width:138px; height:138px; border-radius:50%; padding:13px; flex-shrink:0; }.donut > div { background:#fff; border-radius:50%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; }.donut strong { color:#002658; font-size:1.8rem; letter-spacing:-.05em; }.donut span { color:#6d7d92; font-size:.62rem; }
+.donut-legend p { color:#63738b; font-size:.67rem; margin:12px 0; }.donut-legend strong { display:block; color:#002658; font-size:1rem; margin:5px 0 0 15px; }.donut-legend i { display:inline-block; width:6px; height:6px; background:#2B71CC; border-radius:50%; margin-right:7px; }.donut-legend p:last-child i { background:#4AA580; }
+.quick-label { font-size:.6rem; font-weight:700; letter-spacing:.1em; color:#6d7d92; padding:5px 0 8px; }
+.stButton > button,.stDownloadButton > button,[data-testid="stFormSubmitButton"] button { border-radius:24px; font-size:.78rem; }
+[data-testid="stVerticalBlockBorderWrapper"], [data-testid="stForm"] { border-radius:15px; }
+.student-row { padding:12px 0; }.avatar { border-radius:50%; width:32px; height:32px; }.status-pill { padding:3px 8px; font-size:.61rem; }
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p { font-size:.74rem; }
+@media(max-width:800px) { .workspace-bar { margin-bottom:20px; padding:12px; }.analytics-card { min-height:250px; padding:18px; }.utilization { gap:16px; }.donut { width:115px; height:115px; }.card-heading { flex-wrap:wrap; }.stat-card { min-height:120px; }.block-container { padding-top:1rem; } }
+.analytics-card p.chart-note { font-size:.65rem !important; line-height:1.5; margin:18px 0 0; }
+/* Compact sun/moon appearance selector. */
+.st-key-seletor-aparencia { margin:0 0 12px; }
+.st-key-seletor-aparencia [role="radiogroup"] { display:flex; flex-direction:row; gap:4px; background:#e2edf2; border-radius:28px; padding:5px; }
+[data-testid="stSidebar"] .st-key-seletor-aparencia [data-testid="stRadio"] label { flex:1; justify-content:center; margin:0; padding:8px 13px; border-radius:24px; color:#345269; cursor:pointer; }
+.st-key-seletor-aparencia label > div:first-child { display:none; }
+.st-key-seletor-aparencia input { position:absolute; opacity:0; width:1px; height:1px; }
+[data-testid="stSidebar"] .st-key-seletor-aparencia [data-testid="stRadio"] label p { font-size:.88rem; font-weight:600; }
+[data-testid="stSidebar"] .st-key-seletor-aparencia [data-testid="stRadio"] label:has(input:checked) { color:#002658; background:#fff; box-shadow:0 2px 5px #0026580d; }
+.st-key-seletor-aparencia label:focus-within { outline:2px solid #2B71CC; outline-offset:2px; }
+.st-key-seletor-aparencia [role="radiogroup"] { width:100%; box-sizing:border-box; }
+.st-key-seletor-aparencia [role="radiogroup"] > div { flex:1; }
+.st-key-seletor-aparencia label > div > div:first-child:not([data-testid]) { display:none; }
+.st-key-seletor-aparencia label > div { justify-content:center; }
+.st-key-seletor-aparencia [data-testid="stElementContainer"], .st-key-seletor-aparencia [data-testid="stRadio"] { width:100% !important; }
+[data-testid="stSidebar"] .st-key-seletor-aparencia [data-testid="stRadio"] label { width:100%; box-sizing:border-box; padding:9px 10px; }
+.st-key-seletor-aparencia label p { white-space:nowrap; }

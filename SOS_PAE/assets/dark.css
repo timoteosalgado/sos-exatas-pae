@@ -1,0 +1,184 @@
+/* Override only the active session; keep the SOS palette and the original logo. */
+:root { color-scheme:dark; --sos-muted:#a8bad0; --text-color:#e6eef9; --background-color:#0b1525; --secondary-background-color:#17263c; }
+.stApp { background:#0b1525; color:#e6eef9; }
+[data-testid="stHeader"] { background:rgba(11,21,37,.96); }
+[data-testid="stSidebar"] { background:#101e32; border-color:#2a3d56; color:#e6eef9; }
+h1,h2,h3 { color:#e6eef9 !important; }
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p, [data-testid="stCaption"], [data-testid="stCaption"] p { color:#a8bad0 !important; }
+[data-testid="stMarkdownContainer"], [data-testid="stWidgetLabel"], [data-testid="stWidgetLabel"] p { color:inherit; }
+[data-testid="stSidebar"] hr, hr { border-color:#2a3d56; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background:#1b304b; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background:#203f65; color:#a9d0ff; }
+.sos-brand-label,.breadcrumb,.stat-label,.stat-caption,.student-info span,.student-status small,.agenda-row p,.empty-state p,.attention-ok p { color:#a8bad0; }
+.workspace-bar { color:#d9eaff; border-color:#2a3d56; }
+.user-chip,.stat-card,[data-testid="stMetric"],[data-testid="stForm"],[data-testid="stVerticalBlockBorderWrapper"] { background:#13233a; border-color:#2a3d56; }
+[data-testid="stVerticalBlockBorderWrapper"] > div { border-color:#2a3d56 !important; }
+.stat-value,.student-info strong,.empty-state strong,.attention-ok strong,[data-testid="stMetricValue"] { color:#e6eef9; }
+.page-eyebrow,.empty-icon { color:#8cbcff; }
+.avatar { background:#203f65; color:#a9d0ff; }
+.student-row,.agenda-row { border-color:#2a3d56; }
+.status-pill,.attention-ok > span { background:#183c32; color:#b1e4cd; border-color:#315d4e; }
+.welcome-card { background:#002658; border:1px solid #254b79; }
+.stButton > button,.stDownloadButton > button,[data-testid="stPopoverButton"] button { background:#172b46; color:#e6eef9; border-color:#36516f; }
+.stButton > button:hover { background:#203f65; color:#c3ddff; border-color:#7aaff2; }
+button[kind="primary"],[data-testid="stFormSubmitButton"] button { background:#2B71CC; color:#fff; border-color:#2B71CC; }
+[data-baseweb="input"],[data-baseweb="input"] input,[data-baseweb="textarea"],[data-baseweb="textarea"] textarea,[data-baseweb="select"] > div,[data-baseweb="select"] input,[data-baseweb="popover"] > div,[data-baseweb="menu"],[role="listbox"] { background:#172b46 !important; color:#e6eef9 !important; border-color:#36516f; }
+input::placeholder,textarea::placeholder { color:#9caec4 !important; }
+[data-baseweb="select"] svg, [data-baseweb="input"] svg { fill:#bbcee7; }
+[data-baseweb="tab"] { color:#b8cbe4; }
+[data-baseweb="tab"][aria-selected="true"] { color:#9ac5ff; }
+[data-testid="stExpander"] { background:#13233a; border-color:#2a3d56; color:#e6eef9; }
+[data-testid="stExpander"] summary { color:#e6eef9; }
+[data-testid="stAlert"] { background:#20334a; color:#e6eef9; }
+[data-testid="stAlert"] p { color:#e6eef9; }
+.card-ciclo-aberto,.card-diario-pauta,.card-comunicado { background:#172b46; color:#e6eef9; }
+.timbrado-institucional { background:#13233a !important; color:#e6eef9 !important; border-color:#36516f !important; }
+[data-testid="stFileUploaderDropzone"] { background:#172b46; color:#e6eef9; }
+[data-testid="stTextInputRootElement"], [data-testid="stTextInputField"], [data-testid="stTextArea"] textarea, [data-testid="stNumberInput"] input, [data-testid="stDateInput"] input, [data-testid="stTimeInput"] input, [role="combobox"], [data-testid="stSelectbox"] button { background:#172b46 !important; color:#e6eef9 !important; border-color:#36516f !important; }
+[data-testid="stTextInputRootElement"] button { background:transparent; color:#b8cbe4; }
+[data-testid="stSidebarCollapseButton"] button, [data-testid="stExpandSidebarButton"] button { color:#c3ddff !important; }
+[data-testid="stMarkdownContainer"] a { color:#9ac5ff; }
+[data-testid="stExpandSidebarButton"], [data-testid="stExpandSidebarButton"] span, [data-testid="stSidebarCollapseButton"], [data-testid="stSidebarCollapseButton"] span, [data-testid="stSidebar"] button[aria-label="Collapse sidebar"] span { color:#c3ddff !important; }
+/* Data-first workspace dark surfaces. */
+.workspace-bar,.analytics-card { background:#13233a; border-color:#2a3d56; }
+.subtle-pill { background:#20334a; color:#b5c7df; }
+.scope-note,.chart-note,.quick-label { color:#a8bad0; }
+.distribution-row strong,.donut strong,.donut-legend strong { color:#e6eef9; }
+.bar-track { background:#243952; }
+.donut { background:conic-gradient(#659fee var(--progress),#243952 0); }
+.donut > div { background:#13233a; }
+.donut span,.donut-legend p { color:#a8bad0; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background:#234c7e; color:#fff; }
+.distribution-row:nth-child(4) .bar-track > div { background:#8caed7; }
+/* React Aria select: style the selected value and the detached options menu. */
+[data-testid="stSelectbox"] [role="combobox"],
+[data-testid="stSelectbox"] [role="combobox"] *,
+[data-testid="stSelectbox"] [data-rac],
+[role="listbox"], [role="option"], [role="option"] *,
+[data-testid="stSelectboxVirtualDropdown"],
+[data-testid="stSelectboxVirtualDropdown"] * {
+ color:#e6eef9 !important;
+ -webkit-text-fill-color:#e6eef9 !important;
+}
+[role="listbox"], [role="option"], [data-testid="stSelectboxVirtualDropdown"] {
+ background:#172b46 !important;
+}
+[role="option"][data-focused], [role="option"]:hover,
+[role="option"][aria-selected="true"] {
+ background:#294f7b !important;
+}
+[data-testid="stSelectbox"] [data-testid="stWidgetLabel"] p { color:#e6eef9 !important; }
+.st-key-seletor-aparencia [role="radiogroup"] { background:#20344d; }
+[data-testid="stSidebar"] .st-key-seletor-aparencia [data-testid="stRadio"] label { color:#bfd1e7; }
+[data-testid="stSidebar"] .st-key-seletor-aparencia [data-testid="stRadio"] label:has(input:checked) { background:#41638a; color:#fff; box-shadow:none; }
+/* Keep inactive tabs readable against the dark workspace. */
+[role="tablist"] { border-bottom:1px solid #36516f; }
+button[role="tab"], button[role="tab"] *,
+[data-testid="stTabs"] [role="tab"], [data-testid="stTabs"] [role="tab"] * {
+ color:#c3d3e8 !important;
+ -webkit-text-fill-color:#c3d3e8 !important;
+ opacity:1 !important;
+}
+button[role="tab"]:hover { background:#1c3451 !important; border-radius:8px 8px 0 0; }
+button[role="tab"][aria-selected="true"], button[role="tab"][aria-selected="true"] * {
+ color:#a9d0ff !important;
+ -webkit-text-fill-color:#a9d0ff !important;
+ font-weight:700;
+}
+button[role="tab"]:focus-visible { outline:2px solid #8cbcff !important; outline-offset:2px; }
+/* Sidebar navigation must remain readable in every selection state. */
+[data-testid="stSidebar"] [data-testid="stRadio"] label,
+[data-testid="stSidebar"] [data-testid="stRadio"] label p,
+[data-testid="stSidebar"] [data-testid="stRadio"] label [data-testid="stMarkdownContainer"] {
+ color:#cbd9ec !important;
+ -webkit-text-fill-color:#cbd9ec !important;
+ opacity:1 !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked),
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) p {
+ color:#fff !important;
+ -webkit-text-fill-color:#fff !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
+ background:#203b5c !important;
+}
+/* Unified dark form controls, including outer shells and accessory buttons. */
+[data-testid="stNumberInputContainer"],
+[data-testid="stNumberInput"] > div,
+[data-testid="stDateInput"] [data-baseweb="input"],
+[data-testid="stDateInput"] [data-testid$="RootElement"],
+[data-testid="stDateInput"] [data-rac],
+[data-testid="stTimeInput"] [data-rac],
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div,
+[data-testid="stMultiSelect"] [data-rac],
+[data-testid="stMultiSelect"] [role="combobox"],
+[data-testid="stTextArea"] > div {
+ background:#172b46 !important;
+ color:#e6eef9 !important;
+ border-color:#36516f !important;
+ border-radius:8px;
+}
+[data-testid="stNumberInput"] button,
+[data-testid="stDateInput"] button,
+[data-testid="stTimeInput"] button,
+[data-testid="stMultiSelect"] button {
+ background:#203954 !important;
+ color:#cbdcf2 !important;
+ border-color:#36516f !important;
+}
+[data-testid="stNumberInput"] button:hover,
+[data-testid="stDateInput"] button:hover,
+[data-testid="stMultiSelect"] button:hover { background:#2a4b70 !important; }
+[data-testid="stDateInput"] input,
+[data-testid="stTimeInput"] input,
+[data-testid="stMultiSelect"] input,
+[data-testid="stTextArea"] textarea {
+ background:#172b46 !important;
+ color:#e6eef9 !important;
+ -webkit-text-fill-color:#e6eef9 !important;
+}
+[data-testid="stMultiSelect"] svg,
+[data-testid="stDateInput"] svg { color:#bdd1eb !important; fill:currentColor; }
+[data-testid="stMultiSelect"] [data-baseweb="tag"] {
+ background:#294f7b !important; color:#fff !important; border-radius:6px;
+}
+[data-testid="stForm"] input:focus,
+[data-testid="stForm"] textarea:focus { border-color:#80b5ff !important; }
+[data-testid="stDateInputField"], [data-testid="stDateInputFieldsScroller"],
+[data-testid="stDateInputCalendarButton"] {
+ background:#172b46 !important; color:#e6eef9 !important;
+}
+[data-testid="stDateInputField"] { border:1px solid #36516f !important; border-radius:8px; overflow:hidden; }
+[data-testid="stDateInputField"] [role="group"] { border:0 !important; border-radius:0; }
+[data-testid="stDateInputField"] > div:last-child { background:#172b46 !important; }
+[data-testid="stDateInputCalendarButton"] { border-radius:0 !important; padding:8px; }
+[data-testid="stTextAreaRootElement"] { background:#172b46 !important; border:1px solid #36516f !important; border-radius:8px; overflow:hidden; }
+[data-testid="stTextAreaRootElement"] textarea { border:0 !important; border-radius:8px; }
+[data-testid="stTextAreaRootElement"]:focus-within,
+[data-testid="stDateInputField"]:focus-within { border-color:#80b5ff !important; box-shadow:0 0 0 1px #80b5ff; }
+/* All radio choices, not only sidebar navigation. */
+[data-testid="stRadio"] label,
+[data-testid="stRadio"] label p,
+[data-testid="stRadio"] label [data-testid="stMarkdownContainer"] {
+ color:#cbd9ec !important; -webkit-text-fill-color:#cbd9ec !important; opacity:1 !important;
+}
+[data-testid="stRadio"] label:has(input:checked) p { color:#fff !important; -webkit-text-fill-color:#fff !important; }
+/* Upload actions and collapsible section headers must not inherit light surfaces. */
+[data-testid="stFileUploader"] button,
+[data-testid="stFileUploaderDropzone"] button,
+[data-testid="stFileUploaderDropzone"] button * {
+ background:#203954 !important; color:#e6eef9 !important;
+ -webkit-text-fill-color:#e6eef9 !important; border-color:#486586 !important;
+}
+[data-testid="stFileUploader"] button:hover { background:#294f7b !important; }
+[data-testid="stFileUploaderDropzone"] { border:1px dashed #486586; border-radius:10px; }
+[data-testid="stExpander"], [data-testid="stExpander"] details,
+[data-testid="stExpander"] summary,
+[data-testid="stExpanderDetails"] {
+ background:#13233a !important; color:#e6eef9 !important; border-color:#36516f !important;
+}
+[data-testid="stExpander"] summary *,
+[data-testid="stExpander"] summary [data-testid="stMarkdownContainer"] p {
+ color:#e6eef9 !important; -webkit-text-fill-color:#e6eef9 !important;
+}
+[data-testid="stExpander"] summary:hover { background:#1c3451 !important; }

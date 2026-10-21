@@ -1,0 +1,60 @@
+:root { --sos-blue:#2B71CC; --sos-green:#4AA580; --sos-navy:#002658; --sos-muted:#63738b; }
+.stApp { background:#f4f7fb; color:#142b48; }
+[data-testid="stHeader"] { background:rgba(244,247,251,.96); }
+.block-container { padding-top:2rem; padding-bottom:3rem; max-width:1540px; }
+h1,h2,h3 { color:#002658 !important; letter-spacing:-.035em; }
+h1 { font-size:2.25rem !important; font-weight:750 !important; padding-bottom:.3rem !important; }
+h2 { font-size:1.55rem !important; } h3 { font-size:1.1rem !important; letter-spacing:-.02em; }
+[data-testid="stCaptionContainer"] { color:#63738b; }
+[data-testid="stSidebar"] { background:#fff; border-right:1px solid #e1e8f0; }
+[data-testid="stSidebar"] > div:first-child { padding-top:1rem; }
+[data-testid="stSidebar"] hr { margin:1rem 0; border-color:#e8edf4; }
+[data-testid="stSidebar"] h3 { font-size:.85rem !important; text-transform:uppercase; letter-spacing:.08em; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label { border-radius:8px; padding:7px 8px; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background:#eaf2fc; color:#1859ad; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background:#f2f6fb; }
+[data-testid="stSidebar"] [data-testid="stRadio"] p { font-size:.84rem; }
+.sos-brand { margin-bottom:14px; }
+.sos-logo { display:inline-block; background:white; border-radius:12px; padding:10px; box-sizing:border-box; }
+.sos-logo img { display:block; width:100%; height:auto; }
+.sos-brand-label { font-size:.58rem; color:#63738b; letter-spacing:.19em; font-weight:750; margin-top:-4px; }
+.workspace-bar { display:flex; justify-content:space-between; align-items:center; gap:12px; border-bottom:1px solid #dfe7f0; padding:0 0 18px; margin-bottom:28px; font-size:.85rem; font-weight:650; color:#002658; }
+.breadcrumb { color:#77869a; font-weight:400; margin-left:15px; }
+.user-chip { display:flex; gap:8px; align-items:center; padding:7px 12px; background:#fff; border:1px solid #dfe7f0; border-radius:24px; font-size:.75rem; }
+.online-dot { width:7px; height:7px; background:#4AA580; border-radius:50%; display:inline-block; }
+.page-eyebrow { color:#2B71CC; font-weight:750; letter-spacing:.14em; font-size:.65rem; }
+.welcome-card { display:flex; justify-content:space-between; align-items:center; background:#002658; border-radius:16px; padding:28px 34px; margin:16px 0 22px; overflow:hidden; }
+.welcome-card h2 { color:#fff !important; font-size:1.9rem !important; line-height:1.25; margin:13px 0 9px; font-weight:650; }
+.welcome-card p { color:#c7d8ed; margin:0; font-size:.86rem; }
+.status-pill { display:inline-block; color:#24664d; background:#eaf5ef; border:1px solid #d5eade; padding:4px 9px; border-radius:20px; font-size:.65rem; font-weight:650; white-space:nowrap; }
+.welcome-card .status-pill { background:#143f68; color:#a9e3c8; border-color:#2e5a77; }
+.welcome-symbol { color:#4AA580; font-size:7.3rem; line-height:1; padding:0 30px; font-family:Georgia,serif; }
+.welcome-symbol span { display:block; color:#779ac7; font-size:1.1rem; letter-spacing:15px; margin-top:10px; }
+.stat-card { background:#fff; border:1px solid #e1e8f0; border-radius:12px; padding:20px; min-height:145px; border-top:3px solid #2B71CC; }
+.stat-label { color:#63738b; font-size:.76rem; font-weight:600; }
+.stat-value { color:#002658; font-size:2rem; font-weight:750; letter-spacing:-.04em; margin:6px 0; }
+.stat-caption { color:#77869a; font-size:.7rem; }
+[data-testid="stVerticalBlockBorderWrapper"] > div { border-color:#e1e8f0 !important; border-radius:12px !important; }
+[data-testid="stVerticalBlockBorderWrapper"] { background:#fff; border-radius:12px; }
+[data-testid="stForm"] { background:#fff; border:1px solid #e1e8f0; border-radius:12px; }
+.stButton > button, .stDownloadButton > button, [data-testid="stFormSubmitButton"] button { border-radius:8px; font-weight:600; border-color:#d8e2ee; }
+.stButton > button:hover { border-color:#2B71CC; color:#2B71CC; background:#edf4fd; }
+button[kind="primary"], [data-testid="stFormSubmitButton"] button { background:#2B71CC; border-color:#2B71CC; color:white; }
+button:focus-visible, input:focus-visible { outline:3px solid #2B71CC !important; outline-offset:3px; }
+[data-testid="stMetric"] { background:#fff; border:1px solid #e1e8f0; padding:16px; border-radius:10px; }
+[data-testid="stMetricValue"] { color:#002658; }
+.student-row { display:flex; gap:12px; align-items:center; padding:15px 0; border-bottom:1px solid #edf1f6; }
+.student-row:last-child { border-bottom:0; }
+.avatar { flex-shrink:0; width:36px; height:36px; background:#eaf2fc; color:#2B71CC; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:750; }
+.student-info { flex:1; min-width:0; }.student-info strong { display:block; font-size:.8rem; color:#002658; }.student-info span { display:block; font-size:.65rem; color:#63738b; margin-top:4px; }
+.student-status { text-align:right; }.student-status small { display:block; font-size:.65rem; color:#63738b; margin-top:5px; }
+.empty-state { text-align:center; padding:26px 12px; }.empty-state strong { display:block; color:#002658; font-size:.85rem; }.empty-state p { color:#63738b; font-size:.75rem; margin:10px 0 0; }.empty-icon { display:block; font-size:2rem; color:#2B71CC; margin-bottom:12px; }
+.attention-ok { display:flex; gap:12px; padding:10px 0; }.attention-ok > span { color:#24664d; background:#eaf5ef; border-radius:50%; padding:3px 10px; height:30px; }.attention-ok strong { font-size:.8rem; color:#002658; }.attention-ok p { font-size:.72rem; color:#63738b; margin:6px 0 0; }
+.agenda-row { padding:14px 0; border-bottom:1px solid #edf1f6; }.agenda-row strong { display:block; font-size:.8rem; margin:8px 0; }.agenda-row p { font-size:.73rem; color:#63738b; margin:0; }
+.titulo-pp { background:#002658; padding:20px; border-radius:12px; margin-bottom:16px; }.titulo-pp h2 { color:#fff !important; }.titulo-pp p { color:#c7d8ed; }
+.card-ciclo-aberto,.card-diario-pauta,.card-comunicado { padding:16px; border-radius:10px; background:#eef4fc; border-left:3px solid #2B71CC; margin-bottom:12px; }
+@media(max-width:800px) { .block-container { padding:1.3rem 1rem; }.welcome-card { padding:22px; }.welcome-card h2 { font-size:1.45rem !important; }.welcome-symbol { display:none; }.breadcrumb { display:none; }.user-chip { max-width:155px; font-size:.65rem; }.stat-card { min-height:115px; padding:14px; }.student-row { flex-wrap:wrap; }.student-status { text-align:left; } }
+
+.st-key-login-shell { max-width:440px; margin:12px auto; }
+
+[data-testid="stCaptionContainer"] p { color:#566980 !important; }
