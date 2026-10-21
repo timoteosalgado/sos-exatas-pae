@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+.env.*
+!.env.example
+dados_teste/
+dados/
+fichas_professores/
+envios_alunos/
+docs_professores/
+*.log
+.tmp/
+SOS_PAE/dados_pae_sos.json

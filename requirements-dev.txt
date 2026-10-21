@@ -1,0 +1,2 @@
+-r SOS_PAE/requirements.txt
+pytest==8.4.2
