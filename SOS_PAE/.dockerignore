@@ -1,0 +1,11 @@
+.env
+.env.*
+__pycache__
+*.pyc
+*.log
+dados
+dados_teste
+fichas_professores
+envios_alunos
+docs_professores
+dados_pae_sos.json

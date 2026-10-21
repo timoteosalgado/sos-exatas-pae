@@ -1,13 +1,9 @@
-"""SOS Exatas — Sistema Integrado PAE (Conectado ao Supabase & Blindado).
+"""SOS Exatas — Portal de Aprendizagem e Ensino.
 
-Execução:
-    streamlit run app_sos_exatas.py
-
-Variáveis de ambiente OBRIGATÓRIAS (o app NÃO inicia se faltar qualquer uma):
-    SUPABASE_URL        — URL do projeto Supabase (SEM /rest/v1/ no final)
-    SUPABASE_KEY        — Chave `service_role` rotacionada do Supabase (NUNCA commitar)
-    SOS_SENHA_INICIAL    — Senha inicial dos usuários padrão (troca obrigatória
-                        no primeiro acesso). Deve ter ≥12 caracteres.
+Desenvolvimento local: executar Iniciar-Testes.ps1 na raiz do repositório.
+Integração Supabase: SOS_MODO=supabase, SUPABASE_URL e SUPABASE_KEY no servidor.
+SOS_SENHA_INICIAL é exigida apenas ao criar uma base nova.
+Use exclusivamente um projeto de testes; consulte README.md.
 """
 from __future__ import annotations
 
@@ -33,7 +29,8 @@ from xml.sax.saxutils import escape as xml_esc
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from supabase import create_client, Client
+from supabase import create_client
+from interface import aplicar_tema, marca, cabecalho, painel
 
 # ---------------------------------------------------------------------------
 # Configuração de logging estruturado (JSON)
@@ -81,8 +78,11 @@ def _env_opcional(nome: str, padrao: str = "") -> str:
     return os.environ.get(nome, padrao).strip()
 
 
-SUPABASE_URL = _env_obrigatoria("SUPABASE_URL")
-SUPABASE_KEY = _env_obrigatoria("SUPABASE_KEY", minimo=40)
+MODO_LOCAL = _env_opcional("SOS_MODO", "supabase") == "local"
+DATA_DIR = Path(_env_opcional("SOS_DATA_DIR", "dados_teste" if MODO_LOCAL else "dados"))
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+SUPABASE_URL = "" if MODO_LOCAL else _env_obrigatoria("SUPABASE_URL")
+SUPABASE_KEY = "" if MODO_LOCAL else _env_obrigatoria("SUPABASE_KEY", minimo=40)
 TEMPO_SESSAO_MIN = int(_env_opcional("SOS_SESSAO_MIN", "60"))
 
 
@@ -90,14 +90,14 @@ def _senha_inicial() -> str:
     return _env_obrigatoria("SOS_SENHA_INICIAL", minimo=12)
 
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-log.info("Supabase client criado com sucesso")
+supabase = None if MODO_LOCAL else create_client(SUPABASE_URL, SUPABASE_KEY)
+log.info("Modo local de testes ativo" if MODO_LOCAL else "Supabase client criado com sucesso")
 
 st.set_page_config(
     page_title="SOS Exatas — Sistema Integrado PAE",
-    page_icon="🧭",
+    page_icon=(Path(__file__).resolve().parent / "assets" / "favicon.svg").read_text(encoding="utf-8"),
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 
@@ -110,37 +110,16 @@ def _versao_st() -> tuple:
 
 W = {"width": "stretch"} if _versao_st() >= (1, 50) else {"use_container_width": True}
 
-st.markdown("""
-<style>
-    .stButton>button { border-radius: 8px; font-weight: 600; }
-    div[data-testid="stMetricValue"] { color: #1E3A8A; }
-    .titulo-pp { background: linear-gradient(90deg, #1E3A8A 0%, #2748A0 100%); padding: 20px;
-        border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(30,58,138,.15); }
-    .titulo-pp h2 { color: #FFD700; margin: 0; font-size: 1.6rem; }
-    .titulo-pp p { color: #E8EEFB; margin: 4px 0 0 0; font-size: .95rem; }
-    .timbrado-institucional { background:#fff; border:1px solid #cbd5e1; border-top:5px solid #1E3A8A;
-        border-bottom:4px solid #D97706; padding:28px; border-radius:10px; margin-bottom:24px; color:#0f172a; }
-    .timbrado-header { display:flex; justify-content:space-between; align-items:center;
-        border-bottom:2px solid #e2e8f0; padding-bottom:16px; margin-bottom:18px; }
-    .card-ciclo-aberto { background:#fffbeb; border:1px solid #fde68a; border-left:5px solid #D97706;
-        padding:14px; border-radius:8px; margin-bottom:12px; color:#0f172a; }
-    .card-diario-pauta { background:#eff6ff; border:1px solid #bfdbfe; border-left:5px solid #1E3A8A;
-        padding:14px; border-radius:8px; margin-bottom:12px; color:#0f172a; }
-    .card-renovacao { background:#fff1f2; border:2px solid #e11d48; padding:16px; border-radius:8px;
-        color:#9f1239; margin-bottom:15px; }
-    .card-comunicado { background:#f8fafc; border:1px solid #e2e8f0; border-left:5px solid #2563eb;
-        padding:12px 16px; border-radius:6px; margin-bottom:10px; color:#0f172a; }
-</style>
-""", unsafe_allow_html=True)
+aplicar_tema()
 
 # ==============================================================================
 # DIRETÓRIOS E CONSTANTES
 # ==============================================================================
-PASTA_FICHAS = "fichas_professores"
-PASTA_ENVIOS_ALUNOS = "envios_alunos"
-PASTA_DOCS_PROFESSORES = "docs_professores"
-NOTIF_DIR = Path("dados/notificacoes")
-NOTAS_DIR = Path("dados/notas")
+PASTA_FICHAS = DATA_DIR / "fichas_professores"
+PASTA_ENVIOS_ALUNOS = DATA_DIR / "envios_alunos"
+PASTA_DOCS_PROFESSORES = DATA_DIR / "docs_professores"
+NOTIF_DIR = DATA_DIR / "notificacoes"
+NOTAS_DIR = DATA_DIR / "notas"
 
 for _p in [PASTA_FICHAS, PASTA_ENVIOS_ALUNOS, PASTA_DOCS_PROFESSORES,
            NOTIF_DIR, NOTAS_DIR]:
@@ -277,10 +256,10 @@ class Perfil(str, Enum):
 
 
 _BASE_PROF = {"visualizar", "criar", "editar", "excluir", "anexar", "exportar", "comentar",
-              "notificar", "lancar_atendimento", "gerenciar_agenda", "gerenciar_contratos"}
+              "notificar", "lancar_atendimento", "gerenciar_agenda", "gerenciar_contratos", "consultar_agenda", "consultar_contratos"}
 PERMISSOES = {
-    Perfil.FAMILIA: {"visualizar", "exportar", "comentar"},
-    Perfil.ALUNO: {"visualizar", "enviar_material", "responder_diario"},
+    Perfil.FAMILIA: {"visualizar", "exportar", "comentar", "consultar_agenda", "consultar_contratos"},
+    Perfil.ALUNO: {"visualizar", "enviar_material", "responder_diario", "consultar_agenda"},
     Perfil.PROFESSOR: _BASE_PROF,
     Perfil.COORDENADOR: (_BASE_PROF - {"excluir"}) | {"gerenciar_matriz", "matricular",
                                                    "cadastrar_professor", "gerenciar_usuarios", "gerenciar_agenda", "gerenciar_contratos"},
@@ -314,7 +293,11 @@ def card(classe_css: str, html_conteudo: str) -> None:
 def salvar_upload(upload, pasta: str | Path, prefixo: str) -> str:
     pasta = Path(pasta)
     pasta.mkdir(parents=True, exist_ok=True)
+    if upload.size > 20 * 1024 * 1024:
+        raise ValueError("O arquivo deve ter no máximo 20 MB.")
     ext = Path(upload.name).suffix.lower()
+    if ext not in {".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx", ".xls", ".xlsx"}:
+        raise ValueError("Tipo de arquivo não permitido.")
     stem = re.sub(r"[^\w\-]", "_", Path(upload.name).stem)[:60] or "arquivo"
     nome_final = f"{prefixo}_{uuid.uuid4().hex[:8]}_{stem}{ext}"
     (pasta / nome_final).write_bytes(upload.getbuffer())
@@ -322,7 +305,11 @@ def salvar_upload(upload, pasta: str | Path, prefixo: str) -> str:
 
 
 def botao_download(label: str, pasta: str | Path, nome_arquivo: str, key: str) -> None:
-    caminho = Path(pasta) / nome_arquivo
+    raiz = Path(pasta).resolve()
+    caminho = (raiz / nome_arquivo).resolve()
+    if not caminho.is_relative_to(raiz):
+        st.error("Caminho de arquivo inválido.")
+        return
     if not caminho.exists():
         st.warning(f"⚠️ Arquivo indisponível: {nome_arquivo}")
         return
@@ -440,41 +427,9 @@ HABILIDADES_PADRAO = [
 
 
 def _gerar_alunos_base_sos() -> dict:
-    presenciais = [
-        "Amanda Helena Silva Freire", "Beatriz Lima Figueiredo de Sá",
-        "Caio Tolentino De Lira Alves Paz", "Daniel Brandt de Sampaio",
-        "Davi Batista Ferreira da Silva Mousinho", "Gabriel Rodrigues Lacerda",
-        "Helena Arruda Melo da Costa e Silva", "Isaac Menezes de Araújo",
-        "João Gabriel Bispo Oliveira", "Larissa Maria Samico Cunha",
-        "Laura Pinto Gusmão Paes", "Lucas Gabriel Sampaio Interaminense de Oliveira",
-        "Lucas Peralta Gois", "Luiza Lessa Rocha", "Manoel Albuquerque",
-        "Marco Antonio Gonçalves Pereira", "Maria da Conceição Pereira de Freitas",
-        "Maria Luisa da Silva Lima", "Maria Luiza Araujo", "Maria Victoria Martins de Melo",
-        "Marianna Carreras de Carvalho", "Marina da Franca Bandeira Ferreira Santos",
-        "Matheus Felipe Alves da Silva", "Romero Alencar de Mendonça Canuto Filho",
-        "Sara Lessa Rocha", "Sofia Gomes Silva", "Vinícius Macedo Quirino da Silva",
-        "Yasmin Silva Lima", "Gabriela Bezerra Porto Carreiro", "Marília Diniz Manguinho"
-    ]
-    virtuais = [
-        "Maria Júlia da Silva Lima", "Ryan Souza Duarte Teixeira",
-        "Carolina Cavalcanti Santos", "Rodrigo Menezes Breckenfeld",
-        "Theo Manasses Xavier Rodrigues", "José Guilherme Carneiro do Nascimento",
-        "Isabela Evelly Nabu Santiago da Silva"
-    ]
-    banca = [
-        "Caio Tolentino De Lira Alves Paz", "Helena Arruda Melo da Costa e Silva",
-        "Gabriel Rodrigues Lacerda", "Marina da Franca Bandeira Ferreira Santos",
-        "Lukas Dekian Barbosa Silva dos Santos", "Guilherme de Moura Falcão",
-        "Gabriel de Moura Falcão", "Raul Alves de Azevedo", "Davi Suassuna West",
-        "Beatriz Pires Campaner", "Elis Batista Jansen de Sá Cruz",
-        "Maria Eduarda da Silva Gomes", "Heloísa Lisboa Kyrillos",
-        "Ester Ferreira Ribeiro Costa Vanderlei", "Beatriz Nunes da Costa Simões",
-        "Theo Manasses Xavier Rodrigues", "Vittor Madeira Costa de Amorim",
-        "Eduarda Meireles Rodrigues", "Max André Albuquerque Cavalcante",
-        "Laura Limeira de Moura Ramos", "Miguel de Lima Oliveira",
-        "Vinicius da Franca Bandeira Ferreira Santos", "Ana Miranda de Alcântara Leite",
-        "Marília Diniz Manguinho"
-    ]
+    presenciais = [f"Estudante Teste {i:02d}" for i in range(1, 9)]
+    virtuais = [f"Estudante Teste {i:02d}" for i in range(9, 13)]
+    banca = [f"Estudante Teste {i:02d}" for i in range(5, 13)]
 
     todos_nomes = sorted(list(set(presenciais + virtuais + banca)))
     alunos_db = {}
@@ -552,15 +507,15 @@ def _template_banco() -> dict:
                 "data": "2026-10-10",
                 "horario": "14:00",
                 "local_ou_link": "Sala Presencial 01 / Sede Graças",
-                "responsavel": "Prof. Heitor Albuquerque",
+                "responsavel": "Professor Teste 1",
                 "tipo": "Aula Coletiva",
                 "participantes": "Turma 3º Ano EM"
             }
         ],
         "professores": [
-            {"id": "PROF-01", "nome": "Prof. Heitor Albuquerque", "disciplina": "Física", "valor_hora": 90.0, "contato": "(81) 99988-7766"},
-            {"id": "PROF-02", "nome": "Prof. Ésio Tavares", "disciplina": "Química", "valor_hora": 90.0, "contato": "(81) 98877-5544"},
-            {"id": "PROF-03", "nome": "Prof. Lucas Mendes", "disciplina": "Matemática", "valor_hora": 75.0, "contato": "(81) 97766-3322"},
+            {"id": "PROF-01", "nome": "Professor Teste 1", "disciplina": "Física", "valor_hora": 90.0, "contato": "(81) 99988-7766"},
+            {"id": "PROF-02", "nome": "Professor Teste 2", "disciplina": "Química", "valor_hora": 90.0, "contato": "(81) 98877-5544"},
+            {"id": "PROF-03", "nome": "Professor Teste 3", "disciplina": "Matemática", "valor_hora": 75.0, "contato": "(81) 97766-3322"},
         ],
         "habilidades_cadastradas": HABILIDADES_PADRAO,
         "mensagens_familias": [],
@@ -579,12 +534,12 @@ def criar_banco_padrao() -> dict:
     dados["usuarios"] = {
         "admin": usr("Administrador SOS Exatas", "admin"),
         "coordenacao": usr("Coordenação SOS Exatas", "coordenador"),
-        "professor": usr("Prof. Heitor Albuquerque", "professor"),
-        "aluno": usr("Caio Tolentino (Aluno)", "aluno", "ALU-106"),
-        "familia": usr("Família Tolentino (Responsáveis)", "familia", "ALU-106"),
+        "professor": usr("Professor Teste 1", "professor"),
+        "aluno": usr("Estudante Teste 06", "aluno", "ALU-106"),
+        "familia": usr("Responsável Teste 06", "familia", "ALU-106"),
     }
     dados["mensagens_familias"] = [
-        {"id": "MSG-000001", "data": "2026-09-28", "aluno_id": "ALU-106", "remetente": "Responsável por Caio Tolentino",
+        {"id": "MSG-000001", "data": "2026-09-28", "aluno_id": "ALU-106", "remetente": "Responsável Teste 06",
          "mensagem": "Gostaria de alinhar o cronograma da mentoria com os simulados da escola.",
          "respondida": False, "respostas": []}
     ]
@@ -607,8 +562,6 @@ def sanitizar_banco(dados: dict) -> dict:
         m.setdefault("respostas", [])
         m.setdefault("respondida", False)
 
-    if not dados.get("alunos") or len(dados["alunos"]) < 10:
-        dados["alunos"] = _gerar_alunos_base_sos()
 
     for al in dados["alunos"].values():
         d = al.setdefault("dados", {})
@@ -635,6 +588,17 @@ class ConflitoDeVersao(RuntimeError):
 
 def salvar_banco(dados: Optional[dict] = None) -> None:
     dados = dados if dados is not None else st.session_state.db
+    if MODO_LOCAL:
+        arquivo = DATA_DIR / "estado.json"
+        atual = json.loads(arquivo.read_text(encoding="utf-8")) if arquivo.exists() else {}
+        if atual.get(_VERSAO_ESTADO, 0) != dados.get(_VERSAO_ESTADO, 0):
+            raise ConflitoDeVersao("Outra sessão alterou os dados. Recarregue e tente novamente.")
+        copia = dict(dados, versao=dados.get(_VERSAO_ESTADO, 0) + 1)
+        tmp = arquivo.with_suffix(".tmp")
+        tmp.write_text(json.dumps(copia, ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(tmp, arquivo)
+        dados[_VERSAO_ESTADO] = copia[_VERSAO_ESTADO]
+        return
     versao_local = dados.get(_VERSAO_ESTADO, 0)
     nova_versao = versao_local + 1
     dados[_VERSAO_ESTADO] = nova_versao
@@ -646,21 +610,13 @@ def salvar_banco(dados: Optional[dict] = None) -> None:
     }
 
     try:
-        if versao_local == 0:
-            resp = (
-                supabase.table("sistema_estado")
-                .update(payload)
-                .eq("id", "estado_global")
-                .execute()
-            )
-        else:
-            resp = (
-                supabase.table("sistema_estado")
-                .update(payload)
-                .eq("id", "estado_global")
-                .eq("dados->>versao", str(versao_local))
-                .execute()
-            )
+        resp = (
+            supabase.table("sistema_estado")
+            .update(payload)
+            .eq("id", "estado_global")
+            .eq("dados->>versao", str(versao_local))
+            .execute()
+        )
         if not resp.data:
             dados[_VERSAO_ESTADO] = versao_local
             raise ConflitoDeVersao("Outra sessão atualizou os dados. Suas últimas alterações foram descartadas — refaça-as.")
@@ -688,17 +644,34 @@ def _carregar_banco_remoto() -> Optional[dict]:
             return resp.data[0]["dados"]
     except Exception as e:
         log.warning(f"Falha ao carregar do Supabase: {type(e).__name__}: {e}")
+        raise RuntimeError("Banco indisponível. Nenhuma base de demonstração foi carregada.") from e
     return None
 
 
 def carregar_banco(forcar: bool = False) -> dict:
+    if MODO_LOCAL:
+        arquivo = DATA_DIR / "estado.json"
+        if arquivo.exists():
+            return sanitizar_banco(json.loads(arquivo.read_text(encoding="utf-8")))
+        dados = criar_banco_padrao()
+        for i, aluno in enumerate(dados["alunos"].values(), 1):
+            aluno["dados"].update(nome=f"Estudante Teste {i:02d}", escola="Escola Fictícia", responsaveis=f"Responsável Teste {i:02d}")
+        for login, usuario in dados["usuarios"].items():
+            usuario["nome"] = f"Conta Teste {login}"
+        for i, professor in enumerate(dados["professores"], 1):
+            professor.update(nome=f"Professor Teste {i}", contato="")
+        dados["agenda"] = []
+        dados["mensagens_familias"] = []
+        arquivo.write_text(json.dumps(dados, ensure_ascii=False, indent=2), encoding="utf-8")
+        return dados
     if forcar:
         _carregar_banco_remoto.clear()
 
     remoto = _carregar_banco_remoto()
     if remoto:
+        precisa_migrar = _VERSAO_ESTADO not in remoto
         dados = sanitizar_banco(remoto)
-        if _VERSAO_ESTADO not in remoto:
+        if precisa_migrar:
             log.info("Migrando registro sem campo versao remoto")
             try:
                 supabase.table("sistema_estado").update({
@@ -711,6 +684,8 @@ def carregar_banco(forcar: bool = False) -> dict:
                 log.error(f"Falha na migração de versão: {type(e).__name__}: {e}")
         return dados
 
+    if _env_opcional("SOS_PERMITIR_BOOTSTRAP") != "1":
+        raise RuntimeError("Banco vazio. Execute a configuração inicial no ambiente de desenvolvimento.")
     dados = criar_banco_padrao()
     try:
         supabase.table("sistema_estado").insert({
@@ -721,6 +696,7 @@ def carregar_banco(forcar: bool = False) -> dict:
         log.info("Bootstrap concluído no Supabase")
     except Exception as e:
         log.error(f"Bootstrap falhou ao gravar no Supabase: {e}")
+        raise RuntimeError("Não foi possível inicializar o banco.") from e
     return dados
 
 
@@ -893,7 +869,7 @@ def exportar_pdf(aluno_nome: str, planejamentos: list) -> bytes | None:
     doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=2 * cm, rightMargin=2 * cm,
                             topMargin=2 * cm, bottomMargin=2 * cm, title="Planejamento Pedagógico")
     styles = getSampleStyleSheet()
-    azul = colors.HexColor("#1E3A8A")
+    azul = colors.HexColor("#002658")
     h1 = ParagraphStyle("H1", parent=styles["Heading1"], textColor=azul, fontSize=18, spaceAfter=10)
     h2 = ParagraphStyle("H2", parent=styles["Heading2"], textColor=azul, fontSize=14, spaceBefore=12, spaceAfter=6)
     body = ParagraphStyle("Body", parent=styles["BodyText"], fontSize=10, leading=14)
@@ -933,27 +909,7 @@ def exportar_pdf(aluno_nome: str, planejamentos: list) -> bytes | None:
 # LOGO INSTITUCIONAL
 # ==============================================================================
 def exibir_logo_institucional(tamanho=180, centralizado=False):
-    caminho = next((a for a in ["logo.png", "logo.jpg", "logo.jpeg"] if os.path.exists(a)), None)
-    if caminho:
-        if centralizado:
-            _, c2, _ = st.columns([1, 2, 1])
-            with c2:
-                st.image(caminho, width=tamanho)
-        else:
-            st.image(caminho, width=tamanho)
-        return
-    just = "justify-content:center;" if centralizado else ""
-    st.markdown(f"""
-    <div style="display:flex; align-items:center; {just} gap:12px; margin-bottom:12px;">
-        <svg width="44" height="44" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100" height="100" rx="22" fill="#1E3A8A"/>
-            <path d="M50 15L78 31V69L50 85L22 69V31L50 15Z" stroke="#FFD700" stroke-width="6" stroke-linejoin="round"/>
-            <circle cx="50" cy="50" r="14" fill="#D97706"/>
-            <path d="M50 32V68M32 50H68" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
-        </svg>
-        <div><span style="font-size:1.45rem; font-weight:900; color:#1E3A8A;">SOS EXATAS</span><br>
-        <span style="font-size:.75rem; font-weight:700; color:#D97706; letter-spacing:1.5px; text-transform:uppercase;">Tutoria &amp; Alto Rendimento</span></div>
-    </div>""", unsafe_allow_html=True)
+    marca(tamanho, centralizado)
 
 
 # ==============================================================================
@@ -974,6 +930,8 @@ MAT_MODULOS = ["Módulo 1", "Módulo 2", "Módulo 3", "Módulo 4",
 
 
 def mat_listar_nuvem(filtros: dict = None) -> list:
+    if MODO_LOCAL:
+        return []
     try:
         query = supabase.table("materiais_oficiais").select("*")
         if filtros:
@@ -995,6 +953,9 @@ def mat_listar_nuvem(filtros: dict = None) -> list:
 
 
 def view_material_oficial(aluno, perfil, usuario):
+    if MODO_LOCAL:
+        st.info("Biblioteca em nuvem: conecte um Supabase de testes para validar este módulo. As fichas e os envios locais estão disponíveis nos demais menus.")
+        return
     card("titulo-pp",
          "<h2>📚 Material Oficial SOS Exatas (Nuvem Supabase)</h2>"
          "<p>Biblioteca centralizada com apostilas, listas, simulados e materiais didáticos sincronizados na nuvem.</p>")
@@ -1038,7 +999,7 @@ def view_material_oficial(aluno, perfil, usuario):
                     if m.get("descricao"):
                         st.write(f"**Descrição:** {esc(m['descricao'])}")
                     try:
-                        url_publica = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(m["file_path"])
+                        url_publica = supabase.storage.from_(SUPABASE_BUCKET).create_signed_url(m["file_path"], 300)["signedURL"]
                         st.markdown(f"[📥 Baixar Ficha]({url_publica})", unsafe_allow_html=True)
                     except Exception:
                         pass
@@ -1216,7 +1177,7 @@ def view_fichas_aluno(aluno, perfil, usuario):
                 if f.get("is_nuvem") or f.get("file_path"):
                     try:
                         path_or_url = f.get("file_path") or f.get("nome_arquivo")
-                        url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(path_or_url)
+                        url = supabase.storage.from_(SUPABASE_BUCKET).create_signed_url(path_or_url, 300)["signedURL"]
                         st.markdown(f"[📥 Baixar Ficha]({url})", unsafe_allow_html=True)
                     except Exception:
                         st.caption("Arquivo indisponível")
@@ -1498,10 +1459,10 @@ def view_planejamento(aluno, perfil, usuario):
         st.subheader("📊 Médias Ponderadas por Disciplina")
         df = pd.DataFrame({"Disciplina": list(medias), "Média": [round(v, 2) for v in medias.values()]})
         fig = px.bar(df.sort_values("Média", ascending=False), x="Disciplina", y="Média", text="Média",
-                     range_y=[0, 10], color="Média", color_continuous_scale=["#D97706", "#1E3A8A"])
+                     range_y=[0, 10], color="Média", color_continuous_scale=["#4AA580", "#002658"])
         fig.update_traces(texttemplate="%{text:.1f}", textposition="outside")
         fig.update_layout(height=350, coloraxis_showscale=False)
-        st.plotly_chart(fig, **W)
+        st.plotly_chart(fig, theme=None if st.session_state.get("sos_modo_escuro") else "streamlit", **W)
 
 
 def view_diretorio(aluno, perfil, usuario):
@@ -1662,7 +1623,7 @@ def view_cockpit(aluno, perfil, usuario):
         data_txt = esc(str(ud.get("data", "")))
 
         card("card-diario-pauta",
-             f"<h4 style='color:#1E3A8A;margin:0 0 6px 0;'>📥 Pauta Herdada (Dúvida do Aluno - {data_txt})</h4>"
+             f"<h4 style='color:#002658;margin:0 0 6px 0;'>📥 Pauta Herdada (Dúvida do Aluno - {data_txt})</h4>"
              f"<p style='margin:2px 0;'><strong>Tarefa:</strong> {tarefa_txt} (<em>{sentimento_txt}</em>)</p>"
              f"<p style='margin:2px 0;color:#b91c1c;'><strong>Dúvida:</strong> \"{duvida_txt}\"</p>")
 
@@ -1836,9 +1797,9 @@ def view_perfil_aluno(aluno, perfil, usuario):
             df = df.sort_values("data")
             fig = px.line(df, x="data", y="avaliacao_pos", markers=True, title="Aproveitamento Pós-Mediação (%)",
                           labels={"avaliacao_pos": "Acerto (%)", "data": "Data"})
-            fig.update_traces(line_color="#1E3A8A", line_width=3)
+            fig.update_traces(line_color="#002658", line_width=3)
             fig.update_yaxes(range=[0, 105])
-            st.plotly_chart(fig, **W)
+            st.plotly_chart(fig, theme=None if st.session_state.get("sos_modo_escuro") else "streamlit", **W)
         else:
             st.info("Nenhuma aula registrada ainda.")
 
@@ -1921,25 +1882,25 @@ def view_relatorio_familia(aluno, perfil, usuario):
     parecer = aluno.get("parecer_coordenacao") or parecer_automatico(aluno)
     card("timbrado-institucional", f"""
         <div class="timbrado-header">
-            <div><h2 style="color:#1E3A8A;margin:0 0 4px 0;font-size:1.6rem;">SOS EXATAS TUTORIA &amp; VEST</h2>
+            <div><h2 style="color:#002658;margin:0 0 4px 0;font-size:1.6rem;">SOS EXATAS TUTORIA &amp; VEST</h2>
             <span style="font-size:.85rem;color:#475569;font-weight:600;">
             Tavares e Feitosa Serviços de Ensino LTDA &nbsp;|&nbsp; <strong>CNPJ:</strong> 47.047.100/0001-37<br>
             Edifício Empresarial Ágora — Graças, Recife/PE</span></div>
-            <div style="text-align:right;"><span style="background:#1E3A8A;color:#fff;padding:6px 12px;border-radius:6px;font-weight:700;font-size:.85rem;">
+            <div style="text-align:right;"><span style="background:#002658;color:#fff;padding:6px 12px;border-radius:6px;font-weight:700;font-size:.85rem;">
             RELATÓRIO PEDAGÓGICO MENSAL</span><br>
             <span style="font-size:.8rem;color:#64748b;">Emissão: {datetime.now().strftime('%d/%m/%Y')}</span></div>
         </div>
-        <p><strong>Estudante:</strong> <span style="color:#1E3A8A;">{esc(d['nome'])}</span> &nbsp;|&nbsp; <strong>Matrícula:</strong> <code>{esc(d['id'])}</code></p>
+        <p><strong>Estudante:</strong> <span style="color:#002658;">{esc(d['nome'])}</span> &nbsp;|&nbsp; <strong>Matrícula:</strong> <code>{esc(d['id'])}</code></p>
         <p><strong>Responsáveis:</strong> {esc(d.get('responsaveis', 'Família'))} &nbsp;|&nbsp; <strong>Escola/Série:</strong> {esc(str(d.get('escola')))} ({esc(str(d.get('serie')))})</p>
         <p><strong>Foco:</strong> {esc(d.get('objetivo_estudante', ''))} &nbsp;|&nbsp; <strong>Banca:</strong> {esc(d.get('banca_foco', ''))}</p>
         <hr style="border:0;border-top:1px solid #e2e8f0;margin:16px 0;">
-        <h4 style="color:#1E3A8A;">1. Indicadores Operacionais &amp; Evolução</h4>
+        <h4 style="color:#002658;">1. Indicadores Operacionais &amp; Evolução</h4>
         <ul>
             <li><strong>Carga horária:</strong> {op['horas_realizadas']:.1f}h de {op['horas_contratadas']:.1f}h ({op['presencas']} encontros; {op['faltas']} falta(s)).</li>
             <li><strong>Ciclos fechados com sucesso:</strong> {fechados}.</li>
             <li><strong>Diários metacognitivos:</strong> {len(aluno.get('autoavaliacoes_estudante', []))} registros.</li>
         </ul>
-        <h4 style="color:#1E3A8A;">2. Parecer Técnico da Coordenação Pedagógica</h4>
+        <h4 style="color:#002658;">2. Parecer Técnico da Coordenação Pedagógica</h4>
         <p style="font-style:italic;color:#334155;line-height:1.6;">"{esc(parecer)}"</p>
         <p style="text-align:right;color:#64748b;font-size:.85rem;">Coordenação Pedagógica SOS Exatas — {datetime.now().strftime('%d/%m/%Y')}</p>
     """)
@@ -1963,7 +1924,7 @@ def view_mensagens_familia(aluno, perfil, usuario):
     st.subheader("Histórico")
     for m in reversed(DB().get("mensagens_familias", [])):
         if m.get("aluno_id") == d["id"]:
-            card("card-comunicado", f"<strong style='color:#1E3A8A;'>{esc(m['remetente'])}</strong> ({esc(m['data'])}):<br>{esc(m['mensagem'])}")
+            card("card-comunicado", f"<strong style='color:#002658;'>{esc(m['remetente'])}</strong> ({esc(m['data'])}):<br>{esc(m['mensagem'])}")
             for r in m.get("respostas", []):
                 card("card-diario-pauta", f"<strong>↳ {esc(r['autor'])}</strong> ({esc(r['data'])}):<br>{esc(r['texto'])}")
 
@@ -2008,8 +1969,8 @@ def view_intervencoes(aluno, perfil, usuario):
 
                 card("card-diario-pauta", f"""
                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <h4 style="color:#1E3A8A;margin:0;">📅 {esc(at.get('data', ''))} — {esc(at.get('tema', 'Sem tema'))}</h4>
-                        <span style="font-weight:700;color:#D97706;">Duração: {at.get('duracao_h', 1.5):.2f}h</span>
+                        <h4 style="color:#002658;margin:0;">📅 {esc(at.get('data', ''))} — {esc(at.get('tema', 'Sem tema'))}</h4>
+                        <span style="font-weight:700;color:#4AA580;">Duração: {at.get('duracao_h', 1.5):.2f}h</span>
                     </div>
                     <p style="margin:4px 0;"><strong>Mediador:</strong> {esc(at.get('professor', '—'))} &nbsp;|&nbsp; <strong>Habilidades:</strong> <code>{esc(", ".join(habs_list))}</code> (Blocos: <em>{esc(", ".join(blocos_list))}</em>)</p>
                     <p style="margin:4px 0;"><strong>Obstáculos Identificados:</strong> <span style="color:#b91c1c;font-weight:600;">{esc(", ".join(obs_list))}</span></p>
@@ -2024,7 +1985,7 @@ def view_intervencoes(aluno, perfil, usuario):
         for c in ciclos:
             atrasado = "Fechado" not in c["status"] and c.get("data_limite", "9999") < hoje
             card("card-ciclo-aberto",
-                 f"<strong style='color:#D97706;'>{esc(c['id'])} — [{esc(c['habilidade_cod'])}] {esc(c['tema'])}</strong> "
+                 f"<strong style='color:#4AA580;'>{esc(c['id'])} — [{esc(c['habilidade_cod'])}] {esc(c['tema'])}</strong> "
                  f"({esc(c['status'])}){' ⏰ <b>VENCIDO</b>' if atrasado else ''}<br>"
                  f"<strong>Diagnóstico:</strong> {esc(c['motivo_abertura'])}<br>"
                  f"<strong>Prescrição:</strong> {esc(c['acao_prescrita'])}<br><strong>Prazo:</strong> {esc(c.get('data_limite', '—'))}")
@@ -2260,7 +2221,12 @@ def view_auditoria(aluno, perfil, usuario):
 # ==============================================================================
 # ROTEAMENTO E ESTRUTURA MODULAR DE NAVEGAÇÃO
 # ==============================================================================
+def view_inicio(aluno, perfil, usuario):
+    painel(DB(), perfil.value, usuario, aluno)
+
+
 VIEWS = {
+    "Visão geral": (view_inicio, "visualizar", False),
     "📥 Fichas de Estudo (Download)": (view_fichas_aluno, "visualizar", True),
     "📚 Meu Planejamento Pedagógico": (view_planejamento, "visualizar", True),
     "👤 Meu Perfil, Envios & Histórico": (view_perfil_aluno, "enviar_material", True),
@@ -2290,11 +2256,12 @@ VIEWS = {
     "📚 Material Oficial SOS Exatas": (view_material_oficial, "visualizar", False),
     "📚 Material Oficial — Gerenciar": (view_material_oficial, "criar", False),
     "📚 Material Oficial SOS Exatas (Doc)": (view_material_oficial, "anexar", False),
-    "📄 Gestão de Contratos": (view_contratos, "gerenciar_contratos", True),
-    "📅 Agenda & Calendário": (view_agenda, "gerenciar_agenda", False),
+    "📄 Gestão de Contratos": (view_contratos, "consultar_contratos", True),
+    "📅 Agenda & Calendário": (view_agenda, "consultar_agenda", False),
 }
 
 MODULOS_ADMIN = {
+    "Início": ["Visão geral"],
     "📄 Produzir Relatório de Acompanhamento": [
         "📝 Relatório do Acompanhamento",
         "📜 Relatório das Aulas Anteriores",
@@ -2330,6 +2297,7 @@ MODULOS_ADMIN = {
 }
 
 MODULOS_PROFESSOR = {
+    "Início": ["Visão geral"],
     "📄 Produzir Relatório de Acompanhamento": [
         "📝 Relatório do Acompanhamento",
         "📜 Relatório das Aulas Anteriores",
@@ -2354,6 +2322,7 @@ MODULOS_PROFESSOR = {
 
 MENU_SIMPLES = {
     Perfil.ALUNO: [
+        "Visão geral",
         "📥 Fichas de Estudo (Download)",
         "📚 Meu Planejamento Pedagógico",
         "📚 Material Oficial SOS Exatas",
@@ -2363,6 +2332,7 @@ MENU_SIMPLES = {
         "📅 Agenda & Calendário",
     ],
     Perfil.FAMILIA: [
+        "Visão geral",
         "👪 Relatório de Acompanhamento Mensal",
         "📚 Planejamento Pedagógico & Boletim",
         "📚 Material Oficial SOS Exatas",
@@ -2377,16 +2347,15 @@ MENU_SIMPLES = {
 # LOGIN, SESSÃO E TROCA DE SENHA
 # ==============================================================================
 def logout():
-    for k in ["autenticado", "usuario_key", "ultimo_acesso", "pp_idx", "db"]:
+    for k in ["autenticado", "usuario_key", "ultimo_acesso", "pp_idx", "db", "nav_modulo", "nav_acao", "nav_menu"]:
         st.session_state.pop(k, None)
 
 
 def tela_login():
-    _, c2, _ = st.columns([1, 1.3, 1])
-    with c2:
+    with st.container(key="login-shell"):
         with st.container(border=True):
             exibir_logo_institucional(190, True)
-            st.markdown("<h3 style='color:#1E3A8A;text-align:center;'>Portal de Aprendizagem & Ensino</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align:center;'>Bem-vindo ao seu espaço</h3>", unsafe_allow_html=True)
             st.caption("Autenticação segura • Processo de Acompanhamento Extensivo")
             with st.form("form_login"):
                 usuario = st.text_input("Usuário").strip().lower()
@@ -2456,7 +2425,17 @@ def tela_troca_senha(usuario_key: str):
 # ==============================================================================
 # APLICAÇÃO PRINCIPAL
 # ==============================================================================
+def voltar_inicio(perfil):
+    if perfil in ('admin', 'coordenador', 'professor'):
+        st.session_state.nav_modulo = 'Início'
+        st.session_state.nav_acao = 'Visão geral'
+    else:
+        st.session_state.nav_menu = 'Visão geral'
+
+
 def main():
+    if MODO_LOCAL:
+        st.warning("AMBIENTE LOCAL DE TESTES — use somente dados fictícios. Biblioteca em nuvem indisponível neste modo.")
     if "db" not in st.session_state:
         st.session_state.db = carregar_banco()
 
@@ -2490,6 +2469,7 @@ def main():
 
     with st.sidebar:
         exibir_logo_institucional(160)
+        st.button("Início", icon=":material/home:", key="voltar_inicio", on_click=voltar_inicio, args=(perfil.value,), use_container_width=True)
         st.markdown(f"**{esc(usuario['nome'])}**  \n`{perfil.value.upper()}`")
         if st.button("🚪 Sair (Logout)"):
             auditar("logout", chave)
@@ -2510,10 +2490,10 @@ def main():
             st.markdown(f"**Aluno vinculado:** `{esc(aid or '')}`")
             aluno = alunos.get(aid) if aid else None
         elif alunos:
-            st.markdown("### 🎓 Seleção do Estudante")
+            st.markdown("### Acompanhamento")
 
             modalidade_filtro = st.selectbox(
-                "1ª Etapa: Modalidade de Ensino",
+                "Modalidade de ensino",
                 MODALIDADES_VALIDAS,
                 key="sb_modalidade_filtro"
             )
@@ -2526,7 +2506,7 @@ def main():
 
             if alunos_da_modalidade:
                 aid = st.selectbox(
-                    "2ª Etapa: Escolha o Estudante",
+                    "Estudante selecionado",
                     alunos_da_modalidade,
                     format_func=lambda x: f"{alunos[x]['dados']['nome']} ({x})",
                     key="sb_aluno_filtro"
@@ -2549,8 +2529,8 @@ def main():
         st.divider()
 
         if perfil in (Perfil.COORDENADOR, Perfil.ADMIN):
-            st.markdown("### 🧭 Navegação")
-            modulo_selecionado = st.selectbox("Módulo Principal:", list(MODULOS_ADMIN.keys()))
+            st.markdown("### Área de trabalho")
+            modulo_selecionado = st.selectbox("Módulo Principal:", list(MODULOS_ADMIN.keys()), key="nav_modulo")
             st.divider()
             itens_possiveis = [
                 m for m in MODULOS_ADMIN[modulo_selecionado]
@@ -2559,11 +2539,11 @@ def main():
             if not itens_possiveis:
                 st.info("Nenhuma ação disponível para o seu perfil neste módulo.")
                 st.stop()
-            escolha = st.radio("Selecione a Ação:", itens_possiveis)
+            escolha = st.radio("Selecione a Ação:", itens_possiveis, key="nav_acao")
 
         elif perfil == Perfil.PROFESSOR:
-            st.markdown("### 🧭 Navegação")
-            modulo_selecionado = st.selectbox("Módulo Principal:", list(MODULOS_PROFESSOR.keys()))
+            st.markdown("### Área de trabalho")
+            modulo_selecionado = st.selectbox("Módulo Principal:", list(MODULOS_PROFESSOR.keys()), key="nav_modulo")
             st.divider()
             itens_possiveis = [
                 m for m in MODULOS_PROFESSOR[modulo_selecionado]
@@ -2572,12 +2552,13 @@ def main():
             if not itens_possiveis:
                 st.info("Nenhuma ação disponível para o seu perfil neste módulo.")
                 st.stop()
-            escolha = st.radio("Selecione a Ação:", itens_possiveis)
+            escolha = st.radio("Selecione a Ação:", itens_possiveis, key="nav_acao")
 
         else:
             itens = [m for m in MENU_SIMPLES[perfil] if m in VIEWS and pode(perfil, VIEWS[m][1])]
-            escolha = st.radio("Menu", itens)
+            escolha = st.radio("Menu", itens, key="nav_menu")
 
+    cabecalho(escolha, usuario)
     funcao, acao, precisa_aluno = VIEWS[escolha]
     exigir(perfil, acao)
     if precisa_aluno and not aluno:

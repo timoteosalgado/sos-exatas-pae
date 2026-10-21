@@ -1,4 +1,4 @@
 @echo off
-cd /d "C:\Users\Heitor Feitosa\Desktop"
-py -m streamlit run PAE.py
+cd /d "%~dp0.."
+powershell -NoProfile -ExecutionPolicy Bypass -File "Iniciar-Testes.ps1"
 pause
